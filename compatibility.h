@@ -11,6 +11,12 @@
 #include <linux/acpi.h>
 #include <linux/compat.h>
 
+/* RHEL backports networking APIs without changing LINUX_VERSION_CODE. */
+#if defined(RHEL_RELEASE_CODE) && defined(RHEL_RELEASE_VERSION) && \
+	RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
+#define RTL_RHEL_9_8_OR_NEWER
+#endif
+
 #if defined(RTL8152_S5_WOL) && defined(CONFIG_PM)
 #include <linux/reboot.h>
 #endif /* defined(RTL8152_S5_WOL) && defined(CONFIG_PM) */
@@ -23,12 +29,16 @@
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31) */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,9,0)
-	#define ethtool_keee ethtool_eee
+#if !defined(RTL_RHEL_9_8_OR_NEWER)
+ 	#define ethtool_keee ethtool_eee
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,19,0)
 	#define TSO_LEGACY_MAX_SIZE		65536
-	#define netif_napi_add_weight		netif_napi_add
-	#define netif_set_tso_max_size		netif_set_gso_max_size
-	#define netif_set_tso_max_segs		netif_set_gso_max_segs
+#if !defined(RTL_RHEL_9_8_OR_NEWER)
+ 	#define netif_napi_add_weight		netif_napi_add
+ 	#define netif_set_tso_max_size		netif_set_gso_max_size
+ 	#define netif_set_tso_max_segs		netif_set_gso_max_segs
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0)
@@ -627,7 +637,9 @@
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0) */
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0) */
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0) */
-	#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,188) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)
+	#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,10,188) || \
+	     LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)) && \
+	    !defined(RTL_RHEL_9_8_OR_NEWER)
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,251) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
 	#if LINUX_VERSION_MAJOR != 4 || LINUX_VERSION_PATCHLEVEL != 19 || LINUX_VERSION_SUBLEVEL < 291
 	static inline void eth_hw_addr_set(struct net_device *dev, const u8 *addr)

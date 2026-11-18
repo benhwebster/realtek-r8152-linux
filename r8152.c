@@ -33,7 +33,8 @@
 #include <linux/pci.h>
 #include "compatibility.h"
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,10)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,10) || \
+	defined(RTL_RHEL_9_8_OR_NEWER)
 #include <net/gso.h>
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,10) */
 
@@ -32247,7 +32248,8 @@ out:
 }
 
 static int rtl8152_get_coalesce(struct net_device *netdev,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0) && \
+	!defined(RTL_RHEL_9_8_OR_NEWER)
 				struct ethtool_coalesce *coalesce)
 #else
 				struct ethtool_coalesce *coalesce,
@@ -32272,7 +32274,8 @@ static int rtl8152_get_coalesce(struct net_device *netdev,
 }
 
 static int rtl8152_set_coalesce(struct net_device *netdev,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0) && \
+	!defined(RTL_RHEL_9_8_OR_NEWER)
 				struct ethtool_coalesce *coalesce)
 #else
 				struct ethtool_coalesce *coalesce,
@@ -32416,7 +32419,8 @@ static int rtl8152_set_tunable(struct net_device *netdev,
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(3,18,0) */
 
 static void rtl8152_get_ringparam(struct net_device *netdev,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0) && \
+	!defined(RTL_RHEL_9_8_OR_NEWER)
 				  struct ethtool_ringparam *ring)
 #else
 				  struct ethtool_ringparam *ring,
@@ -32431,7 +32435,8 @@ static void rtl8152_get_ringparam(struct net_device *netdev,
 }
 
 static int rtl8152_set_ringparam(struct net_device *netdev,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0) && \
+	!defined(RTL_RHEL_9_8_OR_NEWER)
 				 struct ethtool_ringparam *ring)
 #else
 				 struct ethtool_ringparam *ring,

@@ -31972,7 +31972,8 @@ static void rtl8152_get_strings(struct net_device *dev, u32 stringset, u8 *data)
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,9,0) || \
+	!defined(RTL_RHEL_9_8_OR_NEWER)
 static int r8152_get_eee(struct r8152 *tp, struct ethtool_keee *eee)
 {
 	__ETHTOOL_DECLARE_LINK_MODE_MASK(common);

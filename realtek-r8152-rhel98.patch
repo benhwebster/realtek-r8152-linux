@@ -1,0 +1,72 @@
+diff --git a/compatibility.h b/compatibility.h
+--- a/compatibility.h
++++ b/compatibility.h
+@@ -10,5 +10,12 @@
+ #include <linux/in.h>
+ #include <linux/acpi.h>
+ #include <linux/compat.h>
++
++/* RHEL backports networking APIs without changing LINUX_VERSION_CODE. */
++#if defined(RHEL_RELEASE_CODE) && defined(RHEL_RELEASE_VERSION) && \
++	RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8)
++#define RTL_RHEL_9_8_OR_NEWER
++#endif
+ 
+ #if defined(RTL8152_S5_WOL) && defined(CONFIG_PM)
+@@ -21,12 +28,16 @@
+ #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(3,7,0) */
+ #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31) */
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(6,9,0)
++#if !defined(RTL_RHEL_9_8_OR_NEWER)
+ 	#define ethtool_keee ethtool_eee
++#endif
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,19,0)
+ 	#define TSO_LEGACY_MAX_SIZE		65536
++#if !defined(RTL_RHEL_9_8_OR_NEWER)
+ 	#define netif_napi_add_weight		netif_napi_add
+ 	#define netif_set_tso_max_size		netif_set_gso_max_size
+ 	#define netif_set_tso_max_segs		netif_set_gso_max_segs
++#endif
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0)
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0)
+@@ -583,3 +594,5 @@
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,9,0) */
+ #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5,12,0) */
+-	#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,188) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)
++	#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,10,188) || \
++	     LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)) && \
++	    !defined(RTL_RHEL_9_8_OR_NEWER)
+diff --git a/r8152.c b/r8152.c
+--- a/r8152.c
++++ b/r8152.c
+@@ -30,7 +30,8 @@
+ #include <linux/acpi.h>
+ #include <linux/pci.h>
+ #include "compatibility.h"
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,10)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,10) || \
++	defined(RTL_RHEL_9_8_OR_NEWER)
+ #include <net/gso.h>
+ #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(6,4,10) */
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(7,0,0)
+@@ -31472,2 +31473,3 @@
+ static int rtl8152_get_coalesce(struct net_device *netdev,
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0) && \
++	!defined(RTL_RHEL_9_8_OR_NEWER)
+@@ -31496,2 +31498,3 @@
+ static int rtl8152_set_coalesce(struct net_device *netdev,
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,15,0) && \
++	!defined(RTL_RHEL_9_8_OR_NEWER)
+@@ -31632,2 +31635,3 @@
+ static void rtl8152_get_ringparam(struct net_device *netdev,
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0) && \
++	!defined(RTL_RHEL_9_8_OR_NEWER)
+@@ -31646,2 +31650,3 @@
+ static int rtl8152_set_ringparam(struct net_device *netdev,
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(5,17,0) && \
++	!defined(RTL_RHEL_9_8_OR_NEWER)
